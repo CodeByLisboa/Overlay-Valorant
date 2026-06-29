@@ -238,7 +238,7 @@ const CONFIG = {
   // Peak manual — atualize quando bater novo recorde
   // Tier IDs: 21=Imortal1  22=Imortal2  23=Imortal3  24=Radiante
   PEAK_TIER_ID:   21,                 // 21 = Imortal 1
-  PEAK_TIER_NAME: "Imortal 1",
+  PEAK_TIER_NAME: "Immortal 1",   // nome em ingles como vem da API
   PEAK_RR:        97,                 // RR no seu peak
 };
 /* ======================================================= */
@@ -247,24 +247,32 @@ const BASE = "https://api.henrikdev.xyz";
 // Mapa de ícones por tier ID — buscado dinamicamente da valorant-api.com
 let TIER_ICONS = {}; // tierId -> url do ícone
 
+// Mapa de icones: tierId -> url  E  nome -> url
+let TIER_ICONS = {};
+let TIER_ICONS_BY_NAME = {};
+
 async function loadTierIcons(){
   try{
     const r = await fetch("https://valorant-api.com/v1/competitivetiers");
     const j = await r.json();
     const tiers = j.data;
     if(!tiers || !tiers.length) return;
-    // usa o último episódio (mais recente)
     const latest = tiers[tiers.length - 1];
     latest.tiers.forEach(t => {
-      if(t.largeIcon) TIER_ICONS[t.tier] = t.largeIcon;
+      if(t.largeIcon){
+        TIER_ICONS[t.tier] = t.largeIcon;
+        if(t.tierName) TIER_ICONS_BY_NAME[t.tierName.toLowerCase()] = t.largeIcon;
+      }
     });
   }catch(e){ /* silencioso */ }
 }
 
-function getTierIcon(tierId){
+function getTierIcon(tierId, tierName){
+  // tenta pelo ID primeiro
   if(TIER_ICONS[tierId]) return TIER_ICONS[tierId];
-  // fallback: URL estática conhecida
-  return `https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/${tierId}/largeicon.png`;
+  // tenta pelo nome (ex: "immortal 1")
+  if(tierName && TIER_ICONS_BY_NAME[tierName.toLowerCase()]) return TIER_ICONS_BY_NAME[tierName.toLowerCase()];
+  return "";
 }
 
 function setStatus(text, state){
@@ -302,13 +310,13 @@ async function refresh(){
     document.getElementById('curRR').textContent   = cur.rr;
     document.getElementById('curFill').style.width = Math.min(cur.rr, 100) + "%";
     if(cur.tier?.id !== undefined)
-      document.getElementById('curIcon').src = getTierIcon(cur.tier.id);
+      document.getElementById('curIcon').src = getTierIcon(cur.tier.id, cur.tier.name);
 
     // Peak: manual do CONFIG, sempre fixo
     document.getElementById('peakName').textContent = CONFIG.PEAK_TIER_NAME;
     document.getElementById('peakRR').textContent   = CONFIG.PEAK_RR;
     document.getElementById('peakFill').style.width = Math.min(CONFIG.PEAK_RR, 100) + "%";
-    document.getElementById('peakIcon').src = getTierIcon(CONFIG.PEAK_TIER_ID);
+    document.getElementById('peakIcon').src = getTierIcon(CONFIG.PEAK_TIER_ID, CONFIG.PEAK_TIER_NAME);
 
     const t = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
     setStatus("atualizado às " + t, "ok");
