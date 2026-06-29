@@ -287,30 +287,11 @@ async function refresh(){
     const histJson = await fetchJSON(histUrl);
     const history = histJson.data || [];
 
-    if(history.length > 0){
-      // pega a entrada com maior RR (elo = RR absoluto, tier.id define o rank)
-      const best = history.reduce((a, b) => (b.elo > a.elo ? b : a));
-      document.getElementById('peakName').textContent = best.tier?.name || "—";
-      document.getElementById('peakRR').textContent   = best.rr ?? 0;
-      document.getElementById('peakFill').style.width = Math.min(best.rr ?? 0, 100) + "%";
-      if(best.tier?.id !== undefined)
-        document.getElementById('peakIcon').src = `${ICON_BASE}/${best.tier.id}/largeicon.png`;
-    } else {
-      // fallback manual
-      document.getElementById('peakName').textContent = CONFIG.PEAK_TIER_NAME;
-      document.getElementById('peakRR').textContent   = CONFIG.PEAK_RR;
-      document.getElementById('peakFill').style.width = Math.min(CONFIG.PEAK_RR, 100) + "%";
-      document.getElementById('peakIcon').src = `${ICON_BASE}/${CONFIG.PEAK_TIER_ID}/largeicon.png`;
-    }
-
-    // Garante que o peak nunca mostra menos que o valor manual do CONFIG
-    const shownRR = parseInt(document.getElementById('peakRR').textContent) || 0;
-    if(shownRR < CONFIG.PEAK_RR){
-      document.getElementById('peakName').textContent = CONFIG.PEAK_TIER_NAME;
-      document.getElementById('peakRR').textContent   = CONFIG.PEAK_RR;
-      document.getElementById('peakFill').style.width = Math.min(CONFIG.PEAK_RR, 100) + "%";
-      document.getElementById('peakIcon').src = `${ICON_BASE}/${CONFIG.PEAK_TIER_ID}/largeicon.png`;
-    }
+    // Peak: sempre usa o manual do CONFIG
+    document.getElementById('peakName').textContent = CONFIG.PEAK_TIER_NAME;
+    document.getElementById('peakRR').textContent   = CONFIG.PEAK_RR;
+    document.getElementById('peakFill').style.width = Math.min(CONFIG.PEAK_RR, 100) + "%";
+    document.getElementById('peakIcon').src = `${ICON_BASE}/${CONFIG.PEAK_TIER_ID}/largeicon.png`;
 
     const t = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
     setStatus("atualizado às " + t, "ok");
