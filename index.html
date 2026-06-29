@@ -247,31 +247,39 @@ const BASE = "https://api.henrikdev.xyz";
 // Mapa de ícones por tier ID — buscado dinamicamente da valorant-api.com
 let TIER_ICONS = {}; // tierId -> url do ícone
 
-// Mapa de icones: tierId -> url  E  nome -> url
-let TIER_ICONS = {};
-let TIER_ICONS_BY_NAME = {};
+// URLs diretas dos icones por nome do rank
+const RANK_ICONS = {
+  "Iron 1":       "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/3/largeicon.png",
+  "Iron 2":       "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/4/largeicon.png",
+  "Iron 3":       "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/5/largeicon.png",
+  "Bronze 1":     "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/6/largeicon.png",
+  "Bronze 2":     "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/7/largeicon.png",
+  "Bronze 3":     "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/8/largeicon.png",
+  "Silver 1":     "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/9/largeicon.png",
+  "Silver 2":     "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/10/largeicon.png",
+  "Silver 3":     "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/11/largeicon.png",
+  "Gold 1":       "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/12/largeicon.png",
+  "Gold 2":       "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/13/largeicon.png",
+  "Gold 3":       "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/14/largeicon.png",
+  "Platinum 1":   "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/15/largeicon.png",
+  "Platinum 2":   "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/16/largeicon.png",
+  "Platinum 3":   "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/17/largeicon.png",
+  "Diamond 1":    "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/18/largeicon.png",
+  "Diamond 2":    "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/19/largeicon.png",
+  "Diamond 3":    "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/20/largeicon.png",
+  "Ascendant 1":  "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/21/largeicon.png",
+  "Ascendant 2":  "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/22/largeicon.png",
+  "Ascendant 3":  "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/23/largeicon.png",
+  "Immortal 1":   "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/24/largeicon.png",
+  "Immortal 2":   "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/25/largeicon.png",
+  "Immortal 3":   "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/26/largeicon.png",
+  "Radiant":      "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/27/largeicon.png",
+};
 
-async function loadTierIcons(){
-  try{
-    const r = await fetch("https://valorant-api.com/v1/competitivetiers");
-    const j = await r.json();
-    const tiers = j.data;
-    if(!tiers || !tiers.length) return;
-    const latest = tiers[tiers.length - 1];
-    latest.tiers.forEach(t => {
-      if(t.largeIcon){
-        TIER_ICONS[t.tier] = t.largeIcon;
-        if(t.tierName) TIER_ICONS_BY_NAME[t.tierName.toLowerCase()] = t.largeIcon;
-      }
-    });
-  }catch(e){ /* silencioso */ }
-}
+async function loadTierIcons(){ /* icones ja sao fixos, nada a carregar */ }
 
 function getTierIcon(tierId, tierName){
-  // tenta pelo ID primeiro
-  if(TIER_ICONS[tierId]) return TIER_ICONS[tierId];
-  // tenta pelo nome (ex: "immortal 1")
-  if(tierName && TIER_ICONS_BY_NAME[tierName.toLowerCase()]) return TIER_ICONS_BY_NAME[tierName.toLowerCase()];
+  if(tierName && RANK_ICONS[tierName]) return RANK_ICONS[tierName];
   return "";
 }
 
@@ -298,7 +306,6 @@ async function fetchJSON(url){
 }
 
 async function refresh(){
-  await loadTierIcons();
   setStatus("atualizando…", "loading");
   try{
     // 1) Rank atual
