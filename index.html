@@ -244,7 +244,21 @@ const CONFIG = {
 /* ======================================================= */
 
 const BASE = "https://api.henrikdev.xyz";
-const ICON_BASE = "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04";
+// Busca o UUID do episódio mais recente pra garantir os ícones certos
+const ICON_FALLBACK = "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04";
+let ICON_BASE = ICON_FALLBACK;
+
+async function loadIconBase(){
+  try{
+    const r = await fetch("https://valorant-api.com/v1/competitivetiers");
+    const j = await r.json();
+    // pega o último episódio da lista (mais recente)
+    const tiers = j.data;
+    if(tiers && tiers.length > 0){
+      ICON_BASE = "https://media.valorant-api.com/competitivetiers/" + tiers[tiers.length-1].uuid;
+    }
+  }catch(e){ /* usa fallback */ }
+}
 
 function setStatus(text, state){
   const dot = document.getElementById('statusDot');
@@ -269,6 +283,7 @@ async function fetchJSON(url){
 }
 
 async function refresh(){
+  await loadIconBase();
   setStatus("atualizando…", "loading");
   try{
     // 1) Rank atual
