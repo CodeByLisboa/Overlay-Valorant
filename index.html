@@ -2,11 +2,10 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Valorant Overlay</title>
+<title>Valorant Rank Overlay</title>
 <style>
   :root{
     --panel: rgba(10,11,14,0.92);
-    --panel2: rgba(18,20,26,0.88);
     --line: rgba(255,255,255,0.07);
     --line2: rgba(255,255,255,0.12);
     --text: #F0F0F2;
@@ -23,7 +22,7 @@
     background: transparent;
     font-family: 'Inter','Segoe UI',Arial,sans-serif;
     color: var(--text);
-    width: 480px;
+    width: 320px;
   }
 
   .card{
@@ -33,87 +32,78 @@
     overflow: hidden;
     backdrop-filter: blur(12px);
     box-shadow: 0 12px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+    display: flex;
+    flex-direction: column;
   }
 
-  /* top bar with period selector */
+  /* top label bar */
   .top-bar{
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 12px;
-    background: rgba(59,130,246,0.08);
     border-bottom: 1px solid var(--line);
   }
-  .brand{
-    font-size: 10px;
+  .top-label{
+    flex: 1;
+    text-align: center;
+    font-size: 9px;
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--accent2);
-    opacity: 0.7;
-  }
-  .period-tabs{
-    display: flex;
-    gap: 2px;
-    background: rgba(0,0,0,0.3);
-    border-radius: 6px;
-    padding: 2px;
-  }
-  .period-btn{
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    padding: 6px 0;
     color: var(--muted);
-    background: transparent;
-    border: none;
-    border-radius: 4px;
-    padding: 3px 7px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    white-space: nowrap;
   }
-  .period-btn:hover{ color: var(--text); background: rgba(255,255,255,0.06); }
-  .period-btn.active{
-    color: #fff;
-    background: linear-gradient(135deg, #2563EB, #1D4ED8);
-    box-shadow: 0 2px 8px rgba(37,99,235,0.45);
-  }
+  .top-label.current{ color: var(--accent2); background: rgba(59,130,246,0.08); }
+  .top-label.peak{ color: var(--gold); background: rgba(200,168,75,0.07); }
+  .top-divider{ width: 1px; background: var(--line); }
 
   /* main row */
   .main-row{
     display: flex;
   }
 
-  /* rank side */
+  /* rank block shared */
   .rank-block{
-    width: 140px;
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 16px 10px;
-    border-right: 1px solid var(--line);
-    background: var(--grad);
+    padding: 14px 10px 16px;
     position: relative;
     overflow: hidden;
+    background: var(--grad);
+  }
+  .rank-block.peak-block{
+    background: linear-gradient(135deg, #2A2010 0%, #141008 100%);
+    border-left: 1px solid var(--line);
   }
   .rank-block::before{
     content:'';
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.18) 0%, transparent 65%);
     pointer-events: none;
   }
-  .rank-icon{
-    width: 60px;
-    height: 60px;
-    margin-bottom: 8px;
-    object-fit: contain;
-    filter: drop-shadow(0 0 12px rgba(59,130,246,0.4));
-    position: relative;
-    z-index:1;
+  .rank-block.current-block::before{
+    background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.16) 0%, transparent 65%);
   }
+  .rank-block.peak-block::before{
+    background: radial-gradient(ellipse at 50% 0%, rgba(200,168,75,0.14) 0%, transparent 65%);
+  }
+
+  .rank-icon{
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 6px;
+  }
+  .rank-block.current-block .rank-icon{
+    filter: drop-shadow(0 0 12px rgba(59,130,246,0.45));
+  }
+  .rank-block.peak-block .rank-icon{
+    filter: drop-shadow(0 0 12px rgba(200,168,75,0.45));
+  }
+
   .rank-name{
     font-size: 11px;
     font-weight: 700;
@@ -121,107 +111,63 @@
     text-transform: uppercase;
     text-align: center;
     color: #fff;
-    position: relative; z-index:1;
+    position: relative; z-index: 1;
+    line-height: 1.2;
   }
+
   .rr-value{
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 800;
-    color: #fff;
-    margin-top: 6px;
-    position: relative; z-index:1;
     line-height: 1;
+    margin-top: 6px;
+    position: relative; z-index: 1;
   }
+  .rank-block.current-block .rr-value{ color: #fff; }
+  .rank-block.peak-block .rr-value{ color: var(--gold); }
+
   .rr-label{
     font-size: 9px;
-    color: var(--accent2);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     margin-top: 2px;
-    position: relative; z-index:1;
+    position: relative; z-index: 1;
   }
+  .rank-block.current-block .rr-label{ color: var(--accent2); }
+  .rank-block.peak-block .rr-label{ color: var(--gold); opacity: 0.7; }
+
   .rr-track{
-    width: 80px;
+    width: 72px;
     height: 3px;
     background: rgba(255,255,255,0.10);
     border-radius: 2px;
     margin-top: 8px;
     overflow: hidden;
-    position: relative; z-index:1;
+    position: relative; z-index: 1;
   }
   .rr-fill{
     height: 100%;
-    background: linear-gradient(90deg, #2563EB, #60A5FA, #93C5FD);
     border-radius: 2px;
     transition: width 0.6s ease;
+  }
+  .rank-block.current-block .rr-fill{
+    background: linear-gradient(90deg, #2563EB, #60A5FA, #93C5FD);
     box-shadow: 0 0 8px rgba(96,165,250,0.6);
   }
+  .rank-block.peak-block .rr-fill{
+    background: linear-gradient(90deg, #92620A, #C8A84B, #F0D080);
+    box-shadow: 0 0 8px rgba(200,168,75,0.5);
+  }
 
-  /* stats side */
-  .stats-block{
-    flex: 1;
+  /* status bar */
+  .status-bar{
     display: flex;
-    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    padding: 14px 16px;
-    gap: 10px;
+    gap: 5px;
+    padding: 5px 12px;
+    border-top: 1px solid var(--line);
+    background: rgba(0,0,0,0.2);
   }
-
-  .stats-top{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .period-display{
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--accent2);
-  }
-  .games-count{
-    font-size: 10px;
-    color: var(--muted);
-  }
-
-  .stats-grid{
-    display: grid;
-    grid-template-columns: repeat(4,1fr);
-    gap: 0;
-  }
-  .stat{
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 0 4px 0 0;
-  }
-  .stat-value{
-    font-size: 22px;
-    font-weight: 800;
-    line-height: 1;
-    color: #fff;
-  }
-  .stat-value.good{ color: #4ADE80; }
-  .stat-value.accent{ color: var(--accent2); }
-  .stat-label{
-    font-size: 8px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-top: 3px;
-  }
-
-  .divider{ height: 1px; background: var(--line); }
-
-  .bottom-row{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .acs-group{ display: flex; align-items: baseline; gap: 5px; }
-  .acs-label{ font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
-  .acs-value{ font-size: 16px; font-weight: 700; color: #fff; }
-
-  .status-group{ display: flex; align-items: center; gap: 5px; }
   .status-dot{
     width: 5px; height: 5px; border-radius: 50%;
     background: var(--good);
@@ -231,10 +177,9 @@
   .status-dot.err{ background: var(--bad); box-shadow: 0 0 6px var(--bad); }
   .status-text{ font-size: 9px; color: var(--muted); }
 
-  /* spinner */
   @keyframes spin{ to{ transform: rotate(360deg); } }
   .spinner{
-    width: 10px; height: 10px;
+    width: 8px; height: 8px;
     border: 1.5px solid rgba(255,255,255,0.1);
     border-top-color: var(--accent2);
     border-radius: 50%;
@@ -248,63 +193,32 @@
 <div class="card">
 
   <div class="top-bar">
-    <span class="brand">VALORANT</span>
-    <div class="period-tabs" id="periodTabs">
-      <button class="period-btn" data-period="1h">1h</button>
-      <button class="period-btn" data-period="5h">5h</button>
-      <button class="period-btn active" data-period="24h">24h</button>
-      <button class="period-btn" data-period="7d">7d</button>
-      <button class="period-btn" data-period="match">Partida</button>
-    </div>
+    <div class="top-label current">Rank Atual</div>
+    <div class="top-divider"></div>
+    <div class="top-label peak">Peak</div>
   </div>
 
   <div class="main-row">
-    <div class="rank-block">
-      <img class="rank-icon" id="rankIcon" src="" alt="rank">
-      <div class="rank-name" id="rankName">—</div>
-      <div class="rr-value" id="rrValue">—</div>
+    <div class="rank-block current-block">
+      <img class="rank-icon" id="curIcon" src="" alt="rank">
+      <div class="rank-name" id="curName">—</div>
+      <div class="rr-value" id="curRR">—</div>
       <div class="rr-label">RR</div>
-      <div class="rr-track"><div class="rr-fill" id="rrFill" style="width:0%"></div></div>
+      <div class="rr-track"><div class="rr-fill" id="curFill" style="width:0%"></div></div>
     </div>
 
-    <div class="stats-block">
-      <div class="stats-top">
-        <span class="period-display" id="periodLabel">Últimas 24h</span>
-        <span class="games-count" id="gamesCount">—</span>
-      </div>
-
-      <div class="stats-grid">
-        <div class="stat">
-          <span class="stat-value good" id="kills">—</span>
-          <span class="stat-label">Kills</span>
-        </div>
-        <div class="stat">
-          <span class="stat-value" id="deaths">—</span>
-          <span class="stat-label">Deaths</span>
-        </div>
-        <div class="stat">
-          <span class="stat-value" id="assists">—</span>
-          <span class="stat-label">Assists</span>
-        </div>
-        <div class="stat">
-          <span class="stat-value accent" id="kd">—</span>
-          <span class="stat-label">K/D</span>
-        </div>
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="bottom-row">
-        <div class="acs-group">
-          <span class="acs-label">ACS</span>
-          <span class="acs-value" id="acs">—</span>
-        </div>
-        <div class="status-group">
-          <div class="status-dot" id="statusDot"></div>
-          <span class="status-text" id="statusText">conectando…</span>
-        </div>
-      </div>
+    <div class="rank-block peak-block">
+      <img class="rank-icon" id="peakIcon" src="" alt="peak rank">
+      <div class="rank-name" id="peakName">—</div>
+      <div class="rr-value" id="peakRR">—</div>
+      <div class="rr-label">RR</div>
+      <div class="rr-track"><div class="rr-fill" id="peakFill" style="width:0%"></div></div>
     </div>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-dot" id="statusDot"></div>
+    <span class="status-text" id="statusText">conectando…</span>
   </div>
 
 </div>
@@ -314,45 +228,17 @@
    CONFIGURACOES — edite aqui o que quiser
    ======================================================= */
 const CONFIG = {
-
-  /* Conta */
-  API_KEY:    "HDEV-9a04529c-cf8e-407e-a009-e849b0f0da7d",
-  RIOT_NAME:  "Lisboa Unreal",   // nome antes do #
-  RIOT_TAG:   "Quit",            // tag depois do #
-  REGION:     "br",              // br | na | latam | eu | ap | kr
-  PLATFORM:   "pc",
-
-  /* Atualizacao */
-  REFRESH_SECONDS: 60,           // intervalo de atualizacao automatica (segundos)
-
-  /* Periodo padrao ao abrir — opcoes: "1h" | "5h" | "24h" | "7d" | "match" */
-  DEFAULT_PERIOD: "24h",
-
-  /* Quantas partidas buscar por periodo */
-  FETCH_SIZE_NORMAL: 15,         // para 1h / 5h / 24h
-  FETCH_SIZE_WEEK:   50,         // para 7d
-
+  API_KEY:         "HDEV-9a04529c-cf8e-407e-a009-e849b0f0da7d",
+  RIOT_NAME:       "Lisboa Unreal",   // nome antes do #
+  RIOT_TAG:        "Quit",            // tag depois do #
+  REGION:          "br",              // br | na | latam | eu | ap | kr
+  PLATFORM:        "pc",
+  REFRESH_SECONDS: 120,               // intervalo de atualizacao (segundos)
 };
 /* ======================================================= */
 
 const BASE = "https://api.henrikdev.xyz";
-let currentPeriod = CONFIG.DEFAULT_PERIOD;
-
-const PERIOD_LABELS = {
-  "1h": "Última 1 hora",
-  "5h": "Últimas 5 horas",
-  "24h": "Últimas 24 horas",
-  "7d": "Últimos 7 dias",
-  "match": "Última partida"
-};
-
-function periodMs(p){
-  if(p === "1h")    return 1  * 60 * 60 * 1000;
-  if(p === "5h")    return 5  * 60 * 60 * 1000;
-  if(p === "24h")   return 24 * 60 * 60 * 1000;
-  if(p === "7d")    return 7  * 24 * 60 * 60 * 1000;
-  return null;
-}
+const ICON_BASE = "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04";
 
 function setStatus(text, state){
   const dot = document.getElementById('statusDot');
@@ -376,94 +262,33 @@ async function fetchJSON(url){
   return res.json();
 }
 
-async function updateRank(){
-  const url = `${BASE}/valorant/v3/mmr/${CONFIG.REGION}/${CONFIG.PLATFORM}/${encodeURIComponent(CONFIG.RIOT_NAME)}/${CONFIG.RIOT_TAG}`;
-  const json = await fetchJSON(url);
-  const cur = json.data.current;
-  document.getElementById('rankName').textContent = cur.tier.name;
-  document.getElementById('rrValue').textContent = cur.rr;
-  document.getElementById('rrFill').style.width = Math.min(cur.rr, 100) + "%";
-  if(cur.tier && cur.tier.id !== undefined){
-    document.getElementById('rankIcon').src =
-      `https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/${cur.tier.id}/largeicon.png`;
-  }
-}
-
-function extractPlayers(m){
-  if(!m.players) return [];
-  if(Array.isArray(m.players)) return m.players;
-  if(Array.isArray(m.players.all_players)) return m.players.all_players;
-  const red = Array.isArray(m.players.red) ? m.players.red : [];
-  const blue = Array.isArray(m.players.blue) ? m.players.blue : [];
-  return [...red, ...blue];
-}
-
-function extractRoundsPlayed(m){
-  if(m.metadata && m.metadata.rounds_played) return m.metadata.rounds_played;
-  if(Array.isArray(m.rounds) && m.rounds.length) return m.rounds.length;
-  if(m.teams){
-    const arr = Array.isArray(m.teams) ? m.teams : Object.values(m.teams);
-    const t = arr.find(t => (t.rounds_won ?? t.rounds?.won) !== undefined);
-    if(t){ const w = t.rounds_won ?? t.rounds?.won ?? 0; const l = t.rounds_lost ?? t.rounds?.lost ?? 0; if(w+l>0) return w+l; }
-  }
-  return 1;
-}
-
-async function updateStats(period){
-  const size = period === "7d" ? 50 : 15;
-  const url = `${BASE}/valorant/v4/matches/${CONFIG.REGION}/${CONFIG.PLATFORM}/${encodeURIComponent(CONFIG.RIOT_NAME)}/${CONFIG.RIOT_TAG}?mode=competitive&size=${size}`;
-  const json = await fetchJSON(url);
-  const matches = json.data || [];
-
-  let filtered;
-  if(period === "match"){
-    filtered = matches.slice(0, 1);
-  } else {
-    const nowUtc = Date.now(); // sempre UTC, igual ao timestamp da API
-    const ms = periodMs(period);
-    filtered = matches.filter(m => {
-      // Prefer game_length to estimate end time; fallback to started_at
-      const startTs = new Date(m.metadata.started_at).getTime();
-      const gameLengthMs = ((m.metadata.game_length_millis) || (m.metadata.game_length * 1000) || 0);
-      const endTs = startTs + gameLengthMs;
-      const refTs = gameLengthMs > 0 ? endTs : startTs;
-      return (nowUtc - refTs) <= ms;
-    });
-  }
-
-  let kills=0, deaths=0, assists=0, acsSum=0, count=0;
-  filtered.forEach(m => {
-    const allPlayers = extractPlayers(m);
-    const me = allPlayers.find(p =>
-      (p.name||"").toLowerCase() === CONFIG.RIOT_NAME.toLowerCase() &&
-      (p.tag||"").toLowerCase() === CONFIG.RIOT_TAG.toLowerCase()
-    );
-    if(me){
-      const s = me.stats || me;
-      const rounds = extractRoundsPlayed(m);
-      kills += s.kills || 0;
-      deaths += s.deaths || 0;
-      assists += s.assists || 0;
-      acsSum += (s.score || 0) / rounds;
-      count++;
-    }
-  });
-
-  document.getElementById('kills').textContent    = count ? kills : "—";
-  document.getElementById('deaths').textContent   = count ? deaths : "—";
-  document.getElementById('assists').textContent  = count ? assists : "—";
-  document.getElementById('kd').textContent       = count ? (kills / Math.max(deaths,1)).toFixed(2) : "—";
-  document.getElementById('acs').textContent      = count ? Math.round(acsSum / count) : "—";
-  document.getElementById('gamesCount').textContent =
-    count === 0 ? "sem partidas" :
-    count === 1 ? "1 partida" : count + " partidas";
-}
-
-async function refreshAll(){
+async function refresh(){
   setStatus("atualizando…", "loading");
   try{
-    await updateRank();
-    await updateStats(currentPeriod);
+    const url = `${BASE}/valorant/v3/mmr/${CONFIG.REGION}/${CONFIG.PLATFORM}/${encodeURIComponent(CONFIG.RIOT_NAME)}/${CONFIG.RIOT_TAG}`;
+    const json = await fetchJSON(url);
+    const cur  = json.data.current;
+    const peak = json.data.peak;
+
+    // Current
+    document.getElementById('curName').textContent = cur.tier.name;
+    document.getElementById('curRR').textContent   = cur.rr;
+    document.getElementById('curFill').style.width = Math.min(cur.rr, 100) + "%";
+    if(cur.tier?.id !== undefined)
+      document.getElementById('curIcon').src = `${ICON_BASE}/${cur.tier.id}/largeicon.png`;
+
+    // Peak
+    if(peak){
+      const peakName = peak.tier?.name || peak.season || "—";
+      const peakRR   = peak.rr ?? peak.ranking_in_tier ?? 0;
+      const peakId   = peak.tier?.id ?? peak.patched_tier_id ?? null;
+      document.getElementById('peakName').textContent = peakName;
+      document.getElementById('peakRR').textContent   = peakRR;
+      document.getElementById('peakFill').style.width = Math.min(peakRR, 100) + "%";
+      if(peakId !== null)
+        document.getElementById('peakIcon').src = `${ICON_BASE}/${peakId}/largeicon.png`;
+    }
+
     const t = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
     setStatus("atualizado às " + t, "ok");
   }catch(err){
@@ -472,32 +297,8 @@ async function refreshAll(){
   }
 }
 
-document.addEventListener('keydown', e => {
-  if(!e.ctrlKey || !e.shiftKey) return;
-  const map = { F1:'1h', F2:'5h', F3:'24h', F4:'7d', F5:'match' };
-  const period = map[e.key];
-  if(!period) return;
-  e.preventDefault();
-  document.querySelectorAll('.period-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.period === period);
-  });
-  currentPeriod = period;
-  document.getElementById('periodLabel').textContent = PERIOD_LABELS[period];
-  refreshAll();
-});
-
-document.getElementById('periodTabs').addEventListener('click', e => {
-  const btn = e.target.closest('.period-btn');
-  if(!btn) return;
-  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  currentPeriod = btn.dataset.period;
-  document.getElementById('periodLabel').textContent = PERIOD_LABELS[currentPeriod] || currentPeriod;
-  refreshAll();
-});
-
-refreshAll();
-setInterval(refreshAll, CONFIG.REFRESH_SECONDS * 1000);
+refresh();
+setInterval(refresh, CONFIG.REFRESH_SECONDS * 1000);
 </script>
 </body>
 </html>
