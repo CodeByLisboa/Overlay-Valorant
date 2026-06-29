@@ -282,12 +282,7 @@ async function refresh(){
     if(cur.tier?.id !== undefined)
       document.getElementById('curIcon').src = `${ICON_BASE}/${cur.tier.id}/largeicon.png`;
 
-    // 2) Peak — histórico completo armazenado pelo HenrikDev
-    const histUrl = `${BASE}/valorant/v2/stored-mmr-history/${CONFIG.REGION}/${CONFIG.PLATFORM}/${encodeURIComponent(CONFIG.RIOT_NAME)}/${CONFIG.RIOT_TAG}`;
-    const histJson = await fetchJSON(histUrl);
-    const history = histJson.data || [];
-
-    // Peak: sempre usa o manual do CONFIG
+    // Peak: manual do CONFIG, sempre fixo
     document.getElementById('peakName').textContent = CONFIG.PEAK_TIER_NAME;
     document.getElementById('peakRR').textContent   = CONFIG.PEAK_RR;
     document.getElementById('peakFill').style.width = Math.min(CONFIG.PEAK_RR, 100) + "%";
